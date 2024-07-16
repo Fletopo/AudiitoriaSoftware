@@ -27,7 +27,7 @@ def limpiarPantalla():
 
 def menuprincipal():
 
-    limpiarPantalla()
+    # limpiarPantalla()
 
     print("================================")
     print("   M E N Ú  P R I N C I P A L   ")
@@ -41,7 +41,7 @@ def menuprincipal():
 
 def menumostrar():
 
-    limpiarPantalla()
+    # limpiarPantalla()
 
     print("================================")
     print("     M E N Ú  M O S T R A R     ")
@@ -53,8 +53,8 @@ def menumostrar():
     print("================================")
 
 def ingresardatos():
-
-    limpiarPantalla()
+    global clientes
+    # limpiarPantalla()
 
     print("=================================")
     print("     INGRESAR DATOS CLIENTE      ")
@@ -118,7 +118,7 @@ def mostrar():
 
 def mostrartodo():
 
-    limpiarPantalla()
+    # limpiarPantalla()
 
     print("=================================")
     print("  MUESTRA DE TODOS LOS CLIENTES  ")
@@ -133,7 +133,7 @@ def mostrartodo():
 
 def mostraruno():
 
-    limpiarPantalla()
+    # limpiarPantalla()
 
     print("=================================")
     print("   MUESTRA DE DATOS PARTICULAR   ")
@@ -147,7 +147,7 @@ def mostraruno():
 
             datos = clientes.get(op)
 
-            limpiarPantalla()
+            # limpiarPantalla()
 
             print(datos)
             print("\n=======================================")
@@ -174,7 +174,7 @@ def mostraruno():
 
 def mostrarparcial():
 
-    limpiarPantalla()
+    # limpiarPantalla()
 
     print("=======================================")
     print("   MUESTRA PARCIALMENTE LOS CLIENTES   ")
@@ -186,13 +186,13 @@ def mostrarparcial():
         cant = int(input("\nIngrese la Cantidad de Clientes a Mostrar : "))
         
         if cant > cant_cli:
-            
+
             alerta(f"La cantidad excede el numero de clientes. \n Clientes registrados: {cant_cli}")
         
         else:
             datos = list(clientes.items())[:cant]
             
-            limpiarPantalla()
+            # limpiarPantalla()
             
             for cliente,dato in datos:
 
@@ -210,7 +210,7 @@ def modificardatos():
 
     listanuevos=[]
 
-    limpiarPantalla()
+    # limpiarPantalla()
 
     print("===================================")
     print("      MODULO MODIFICAR CLIENTE     ")
@@ -324,10 +324,9 @@ def modificardatos():
     
     clientes[mod]=listanuevos
 
-
 def eliminardatos():
 
-    limpiarPantalla()
+    # limpiarPantalla()
 
     print("===================================")
     print("      MODULO ELIMINAR CLIENTE      ")
@@ -350,11 +349,9 @@ def eliminardatos():
     except ValueError:
         pass
 
-# --------------------------------------
+def menuUsuarios(opUsu=None):
 
-def menuUsuarios():
-
-    limpiarPantalla()
+    # limpiarPantalla()
 
     print("================================")
     print("   M E N Ú  U S U A R I O S     ")
@@ -366,7 +363,7 @@ def menuUsuarios():
 
 def ingresoUsuarios():
 
-    limpiarPantalla()
+    # limpiarPantalla()
 
     print("=======================================")
     print("        INGRESO DE USUARIO             ")
@@ -386,6 +383,30 @@ def ingresoUsuarios():
     usuario = [codigo,username,clave,nombre,apellidos,correo]
     usuarios[username] = usuario
 
+def iniciar_sesion():
+
+    # limpiarPantalla()
+
+    user = input("Ingrese nombre de usuario: ")
+
+    # limpiarPantalla()
+
+    clave = input("Ingrese password: ")
+
+    # limpiarPantalla()
+
+    if usuarios.get(user):
+
+        usuario = usuarios.get(user)
+
+        if usuario[2] == clave:
+
+            print(f"Bienvenido {usuario[3]} {usuario[4]} - {usuario[2]} - id: {usuario[0]}.")
+            input("Presiona ENTRAR para ingresar al Menú Principal.")
+            
+            return True
+    
+    return False
 
 while True:
 
@@ -397,104 +418,83 @@ while True:
 
         if opUsu == 1:
 
-            limpiarPantalla()
+            if iniciar_sesion():
 
-            user = input("Ingrese nombre de usuario: ")
-
-            limpiarPantalla()
-
-            clave = input("Ingrese password: ")
-
-            limpiarPantalla()
-
-            if usuarios.get(user):
-
-                usuario = usuarios.get(user)
-
-                if usuario[2] == clave:
-
-                    print(f"Bienvenido {usuario[3]} {usuario[4]} - {usuario[2]} - id: {usuario[0]}.")
-                    input("Presiona ENTRAR para ingresar al Menú Principal.")
-
-                    while True:  # Bucle para el Menú Principal
+                while True:  # Bucle para el Menú Principal
                         
-                        menuprincipal()
+                    menuprincipal()
 
-                        try:
+                    try:
 
-                            op = int(input("INGRESE OPCIÓN: "))
+                        op = int(input("INGRESE OPCIÓN: "))
                             
-                            if op == 1:
+                        if op == 1:
                             
-                                ingresardatos()
+                            ingresardatos()
                             
-                            elif op == 2:
+                        elif op == 2:
                                 
-                                if len(clientes) > 0:
+                            if len(clientes) > 0:
 
-                                    mostrar()
+                                mostrar()
                                 
-                                else:
-                                    onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
-                                    
-                                    if onc.lower() == "si":
-                                    
-                                        ingresardatos()
-                                    
-                                    else:
-                                        pass
-                            
-                            elif op == 3:
-
-                                if len(clientes) > 0:
-
-                                    modificardatos()
-
-                                else:
-                                    onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
-                                    
-                                    if onc.lower() == "si":
-                                    
-                                        ingresardatos()
-                                    
-                                    else:
-                                        pass
-
-                            elif op == 4:
-                                
-                                if len(clientes) > 0:
-                                    
-                                    eliminardatos()
-
-                                else:
-                                    onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
-                                    
-                                    if onc.lower() == "si":
-                                    
-                                        ingresardatos()
-                                    
-                                    else:
-                                        pass
-
-                            elif op == 5:
-                            
-                                opSalir = input("¿DESEA SALIR [SI/NO]: ")
-                            
-                                if opSalir.lower() == "si":
-                            
-                                    break  # Salir del bucle del Menú Principal
                             else:
-                                pass
+                                onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
+                                    
+                                if onc.lower() == "si":
+                                    
+                                    ingresardatos()
+                                    
+                                else:
+                                    pass
+                            
+                        elif op == 3:
 
-                        except ValueError:
+                            if len(clientes) > 0:
+
+                                modificardatos()
+
+                            else:
+                                onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
+                                    
+                                if onc.lower() == "si":
+                                    
+                                    ingresardatos()
+                                    
+                                else:
+                                    pass
+
+                        elif op == 4:
+                                
+                            if len(clientes) > 0:
+                                    
+                                eliminardatos()
+
+                            else:
+                                onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
+                                    
+                                if onc.lower() == "si":
+                                    
+                                    ingresardatos()
+                                    
+                                else:
+                                    pass
+
+                        elif op == 5:
+                            
+                            opSalir = input("¿DESEA SALIR [SI/NO]: ")
+                            
+                            if opSalir.lower() == "si":
+                            
+                                break  # Salir del bucle del Menú Principal
+                        else:
                             pass
 
-                    break  # Salir del bucle del Menú de Usuarios
-                else:
-                    input("Contraseña incorrecta. Presiona ENTER para volver al Menú de Usuarios.")
-            else:
-                input("Usuario no registrado. Presiona ENTER para volver al Menú de Usuarios.")
-    
+                    except ValueError:
+                        pass
+
+                break  # Salir del bucle del Menú de Usuarios
+   
         elif opUsu == 2:
 
             ingresoUsuarios()
