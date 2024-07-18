@@ -1,4 +1,6 @@
 import os
+import time
+import threading
 import tkinter as tk
 from tkinter import messagebox
 
@@ -15,6 +17,13 @@ def alerta(mensaje):
     root.attributes('-topmost', True)
     messagebox.showinfo("Advertencia", mensaje)
     root.destroy()  
+
+def carga_e():
+    mensajes = ["Iniciando Programa.", "Iniciando Programa..", "Iniciando Programa..."]
+    for _ in range(1):
+        for msg in mensajes:
+            print(msg)
+            time.sleep(1)
 
 def limpiarPantalla():
     
@@ -53,8 +62,8 @@ def menumostrar():
     print("================================")
 
 def ingresardatos():
-    global clientes
     # limpiarPantalla()
+    global clientes
 
     print("=================================")
     print("     INGRESAR DATOS CLIENTE      ")
@@ -147,7 +156,7 @@ def mostraruno():
 
             datos = clientes.get(op)
 
-            # limpiarPantalla()
+            limpiarPantalla()
 
             print(datos)
             print("\n=======================================")
@@ -349,7 +358,7 @@ def eliminardatos():
     except ValueError:
         pass
 
-def menuUsuarios(opUsu=None):
+def menuUsuarios():
 
     # limpiarPantalla()
 
@@ -408,106 +417,119 @@ def iniciar_sesion():
     
     return False
 
-while True:
+def main():
 
-    menuUsuarios()
+    while True:
 
-    try:
-        
-        opUsu = int(input("INGRESE OPCIÓN: "))
+        menuUsuarios()
 
-        if opUsu == 1:
+        try:
+            
+            opUsu = int(input("INGRESE OPCIÓN: "))
 
-            if iniciar_sesion():
+            if opUsu == 1:
 
-                while True:  # Bucle para el Menú Principal
-                        
-                    menuprincipal()
+                if iniciar_sesion():
 
-                    try:
-
-                        op = int(input("INGRESE OPCIÓN: "))
+                    while True:  # Bucle para el Menú Principal
                             
-                        if op == 1:
-                            
-                            ingresardatos()
-                            
-                        elif op == 2:
+                        menuprincipal()
+
+                        try:
+
+                            op = int(input("INGRESE OPCIÓN: "))
                                 
-                            if len(clientes) > 0:
-
-                                mostrar()
+                            if op == 1:
                                 
-                            else:
-                                onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
+                                ingresardatos()
+                                
+                            elif op == 2:
                                     
-                                if onc.lower() == "si":
-                                    
-                                    ingresardatos()
+                                if len(clientes) > 0:
+
+                                    mostrar()
                                     
                                 else:
-                                    pass
-                            
-                        elif op == 3:
-
-                            if len(clientes) > 0:
-
-                                modificardatos()
-
-                            else:
-                                onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
-                                    
-                                if onc.lower() == "si":
-                                    
-                                    ingresardatos()
-                                    
-                                else:
-                                    pass
-
-                        elif op == 4:
+                                    onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
+                                        
+                                    if onc.lower() == "si":
+                                        
+                                        ingresardatos()
+                                        
+                                    else:
+                                        pass
                                 
-                            if len(clientes) > 0:
-                                    
-                                eliminardatos()
+                            elif op == 3:
 
-                            else:
-                                onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
-                                    
-                                if onc.lower() == "si":
-                                    
-                                    ingresardatos()
-                                    
+                                if len(clientes) > 0:
+
+                                    modificardatos()
+
                                 else:
-                                    pass
+                                    onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
+                                        
+                                    if onc.lower() == "si":
+                                        
+                                        ingresardatos()
+                                        
+                                    else:
+                                        pass
 
-                        elif op == 5:
-                            
-                            opSalir = input("¿DESEA SALIR [SI/NO]: ")
-                            
-                            if opSalir.lower() == "si":
-                            
-                                break  # Salir del bucle del Menú Principal
-                        else:
+                            elif op == 4:
+                                    
+                                if len(clientes) > 0:
+                                        
+                                    eliminardatos()
+
+                                else:
+                                    onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
+                                        
+                                    if onc.lower() == "si":
+                                        
+                                        ingresardatos()
+                                        
+                                    else:
+                                        pass
+
+                            elif op == 5:
+                                
+                                opSalir = input("¿DESEA SALIR [SI/NO]: ")
+                                
+                                if opSalir.lower() == "si":
+                                
+                                    break  # Salir del bucle del Menú Principal
+                            else:
+                                pass
+
+                        except ValueError:
                             pass
 
-                    except ValueError:
-                        pass
+                    break  # Salir del bucle del Menú de Usuarios
+    
+            elif opUsu == 2:
 
-                break  # Salir del bucle del Menú de Usuarios
-   
-        elif opUsu == 2:
+                ingresoUsuarios()
 
-            ingresoUsuarios()
+            elif opUsu == 3:
 
-        elif opUsu == 3:
+                opSalir = input("¿DESEA SALIR [SI/NO]: ")
 
-            opSalir = input("¿DESEA SALIR [SI/NO]: ")
+                if opSalir.lower() == "si":
+                    break
+            else:
+                pass
 
-            if opSalir.lower() == "si":
-                break
-        else:
+        except ValueError:
+            
             pass
 
-    except ValueError:
-        
-        pass
+if __name__=="__main__":
+
+    carga_thread = threading.Thread(target=carga_e)
+    carga_thread.start()
+
+    time.sleep(3)
+
+    main()
+    limpiarPantalla()
+    print("Programa finalizado")
