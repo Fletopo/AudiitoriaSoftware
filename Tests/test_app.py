@@ -142,7 +142,6 @@ def test_integracion_ingreso_modificacion_eliminacion(input_generator):
         p.eliminardatos()
         assert "98765432-1" not in p.clientes
 
-
 #Pruebas de tiempo
 @patch('builtins.print', MagicMock())
 def test_tiempo_ingresardatos(input_generator):

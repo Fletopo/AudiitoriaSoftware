@@ -1,535 +1,410 @@
 import os
 import time
-import threading
+import sys
 import tkinter as tk
 from tkinter import messagebox
 
 clientes = {}
-usuarios = {}
+usuarios = {
+    'admin': [1, 'admin', 'Admin', 'User', '1234567890', 'admin@empresa.com', 'admin_password', 'admin']
+}
 idcliente = 0
-idusuario = 0
+idusuario = 1
 
 def alerta(mensaje):
-
     root = tk.Tk()
-    root.withdraw()  
+    root.withdraw()
     root.lift()
     root.attributes('-topmost', True)
     messagebox.showinfo("Advertencia", mensaje)
-    root.destroy()  
+    root.destroy()
+
+def carga_i(iteraciones, espera=0.1):
+    for i in range(iteraciones):
+        relleno = chr(9608) * (i + 1)  
+        sys.stdout.write(f'\r[{relleno.ljust(iteraciones)}]')
+        sys.stdout.flush()
+        time.sleep(espera)
+    print()  
 
 def carga_e():
-    mensajes = ["Iniciando Programa.", "Iniciando Programa..", "Iniciando Programa..."]
+    mensajes = ["Cargando.", "Cargando..", "Cargando..."]
     for _ in range(1):
         for msg in mensajes:
+            limpiarPantalla()
             print(msg)
             time.sleep(1)
 
 def limpiarPantalla():
-    
     if os.name == "nt":
-        
         os.system('cls')
-
     else:
         os.system("clear")
 
-def menuprincipal():
-
-    # limpiarPantalla()
-
+def menuprincipal(tipo_usuario):
+    limpiarPantalla()
     print("================================")
     print("   M E N Ú  P R I N C I P A L   ")
     print("================================")
-    print("       1.- (C) INGRESAR         ")
-    print("       2.- (R) MOSTRAR          ")
-    print("       3.- (U) MODIFICAR        ")
-    print("       4.- (D) ELIMINAR         ")
-    print("       5.- (E) Salir            ")
-    print("================================")
-
-def menumostrar():
-
-    # limpiarPantalla()
-
-    print("================================")
-    print("     M E N Ú  M O S T R A R     ")
-    print("================================")
-    print("       1.- MOSTRAR TODO         ")
-    print("       2.- MOSTRAR UNO          ")
-    print("       3.- MOSTRAR PARCIAL      ")
-    print("       4.- VOLVER               ")
+    if tipo_usuario[0] == "admin":
+        print("       1.- REGISTRAR USUARIO    ")
+        print("       2.- ELIMINAR USUARIO     ")
+        print("       3.- SALIR DE LA SESIÓN   ")
+    elif tipo_usuario[0] == "trabajador":
+        print("       1.- PERFIL               ")
+        print("================================")
+        print("       2.- INGRESAR CLIENTE     ")
+        print("       3.- MOSTRAR CLIENTES     ")
+        print("       4.- MODIFICAR CLIENTE    ")
+        print("       5.- ELIMINAR CLIENTE     ")
+        print("       6.- SALIR DE LA SESIÓN   ")
     print("================================")
 
 def ingresardatos():
-    # limpiarPantalla()
-    global clientes
-
+    limpiarPantalla()
+    global clientes, idcliente
     print("=================================")
     print("     INGRESAR DATOS CLIENTE      ")
     print("=================================")
-
-    run = input("INGRESE RUN : ")
-    nombre=input("INGRESE NOMBRE : ").lower()
-    apellido=input("INGRESE APELLIDO : ").lower()
-    direccion=input("INGRESE DIRECCION : ").title()
-    fono=input("INGRESE TELEFONO : ")
-    correo=input("INGRESE CORREO : ")
-    tipos = [
-        [101,"Plata"],[102,"Oro"],[103,"Platino"]
-    ]
-
-    print("--------------------------------------------")
-
+    run = input("INGRESE RUN : ").strip()
+    nombre = input("INGRESE NOMBRE : ").lower()
+    apellido = input("INGRESE APELLIDO : ").lower()
+    direccion = input("INGRESE DIRECCION : ").title()
+    telefono = input("INGRESE TELEFONO : ").strip()
+    correo = input("INGRESE CORREO : ").strip()
+    tipos = [[101, "Plata"], [102, "Oro"], [103, "Platino"]]
+    print("TIPO DE CLIENTE")
     for tipo in tipos:
+        print(" CODIGO : {} - {}.".format(tipo[0], tipo[1]))
+    tipo_codigo = input("Ingrese el codigo del Tipo de Cliente: ").strip()
+    
+    tipo_map = {str(codigo): tipo for codigo, tipo in tipos}
+    tipo = tipo_map.get(tipo_codigo)
 
-        print(
-            " CODIGO : {} - {}.".format(tipo[0], tipo[1]))
-        
-    print("--------------------------------------------")
+    monto = input("INGRESE MONTO CREDITO : ").strip()
+    
+    if not (run and nombre and apellido and direccion and telefono and correo and tipo and monto):
+        alerta("Todos los campos son obligatorios.")
+        return
+    
+    try:
+        monto = int(monto)
+    except ValueError:
+        alerta("Monto de crédito debe ser un número entero.")
+        return
 
-    tipo = input("Ingrese el codigo del Tipo de Cliente: ")
-    monto=input("INGRESE MONTO CREDITO : ")
+    if run in clientes:
+        alerta("El RUN ya está registrado.")
+        return
 
-    global idcliente    
+    carga_e()
     idcliente += 1
-    codigo = idcliente
-    deuda = 0
-    cliente = [codigo,run,nombre,apellido,direccion,fono,correo,tipo,monto,deuda]
-    clientes[run]=cliente
+    cliente = [idcliente, run, nombre, apellido, direccion, telefono, correo, tipo, monto, 0]
+    clientes[run] = cliente
+    alerta("cliente ingresado exitosamente")
 
 def mostrar():
-
-    while(True):
-
-        menumostrar()
-        op2 = int(input("  INGRESE OPCIÓN : "))
-
-        if op2 == 1:
-
+    while True:
+        limpiarPantalla()
+        print("================================")
+        print("     M E N Ú  M O S T R A R     ")
+        print("================================")
+        print("       1.- MOSTRAR TODO         ")
+        print("       2.- MOSTRAR UNO          ")
+        print("       3.- MOSTRAR PARCIAL      ")
+        print("       4.- VOLVER               ")
+        print("================================")
+        opm = int(input("  INGRESE OPCIÓN : "))
+        if opm == 1:
             mostrartodo()
             input("\n\n PRESIONE ENTER PARA CONTINUAR")
-
-        elif op2 == 2:
-
+        elif opm == 2:
             mostraruno()
-
-        elif op2 == 3:
-
+        elif opm == 3:
             mostrarparcial()
-
-        if op2 == 4:
-
+        elif opm == 4:
             break
-
         else:
             pass
 
 def mostrartodo():
-
-    # limpiarPantalla()
-
+    limpiarPantalla()
     print("=================================")
     print("  MUESTRA DE TODOS LOS CLIENTES  ")
     print("=================================")
-
-    for cliente,dato in clientes.items():
-
-        print(
-            " ID : {} - RUN : {} - NOMBRE : {} - APELLIDO : {} - DIRECCION : {} - FONO : {} - CORREO : {} - MONTO CRÉDITO : {} - DEUDA : {} - TIPO : {} ".format(
-                dato[0], cliente, dato[2], dato[3], dato[4], dato[5], dato[6] , dato[8], dato[9], dato[7]))
+    for cliente, dato in clientes.items():
+        print(" ID : {} - RUN : {} - NOMBRE : {} - APELLIDO : {} - DIRECCION : {} - FONO : {} - CORREO : {} - MONTO CRÉDITO : {} - DEUDA : {} - TIPO DE CLIENTE : {} ".format(
+            dato[0], cliente, dato[2], dato[3], dato[4], dato[5], dato[6], dato[8], dato[9], dato[7]))
         print("-------------------------------------------------------------------------------------------------------------------------------------------------")
 
 def mostraruno():
-
-    # limpiarPantalla()
-
+    limpiarPantalla()
     print("=================================")
     print("   MUESTRA DE DATOS PARTICULAR   ")
     print("=================================")
-
     try:
-
-        op=input("\n Ingrese valor del Run del Cliente que desea Mostrar los Datos : ").strip()
-    
+        op = input("\n Ingrese valor del Run del Cliente que desea Mostrar los Datos : ").strip()
         if op in clientes:
-
             datos = clientes.get(op)
-
             limpiarPantalla()
-
             print(datos)
             print("\n=======================================")
             print("    MUESTRA  DE  DATOS  DEL   CLIENTE   ")
             print("=======================================")
-            print(" ID            : {} ".format(datos[0]))
-            print(" RUN           : {} ".format(datos[1]))
-            print(" NOMBRE        : {} ".format(datos[2]))
-            print(" APELLIDO      : {} ".format(datos[3]))
-            print(" DIRECCION     : {} ".format(datos[4]))
-            print(" FONO          : {} ".format(datos[5]))
-            print(" CORREO        : {} ".format(datos[6]))
-            print(" TIPO          : {} ".format(datos[9]))
-            print(" MONTO CREDITO : {} ".format(datos[7]))
-            print(" DEUDA         : {} ".format(datos[8]))
+            print(" ID               : {} ".format(datos[0]))
+            print(" RUN              : {} ".format(datos[1]))
+            print(" NOMBRE           : {} ".format(datos[2]))
+            print(" APELLIDO         : {} ".format(datos[3]))
+            print(" DIRECCION        : {} ".format(datos[4]))
+            print(" FONO             : {} ".format(datos[5]))
+            print(" CORREO           : {} ".format(datos[6]))
+            print(" TIPO DE CLIENTE  : {} ".format(datos[7]))
+            print(" MONTO CREDITO    : {} ".format(datos[8]))
+            print(" DEUDA            : {} ".format(datos[9]))
             print("-----------------------------------------")
             input("\n\n PRESIONE ENTER PARA CONTINUAR")
-        
         else:
             alerta("El cliente no ha sido encontrado")
-
     except ValueError:
         pass
 
 def mostrarparcial():
-
-    # limpiarPantalla()
-
+    limpiarPantalla()
     print("=======================================")
     print("   MUESTRA PARCIALMENTE LOS CLIENTES   ")
     print("=======================================")
-
     try:
-
         cant_cli = len(clientes)
         cant = int(input("\nIngrese la Cantidad de Clientes a Mostrar : "))
-        
         if cant > cant_cli:
-
             alerta(f"La cantidad excede el numero de clientes. \n Clientes registrados: {cant_cli}")
-        
         else:
             datos = list(clientes.items())[:cant]
-            
-            # limpiarPantalla()
-            
-            for cliente,dato in datos:
-
-                print(
-                    " ID : {} - RUN : {} - NOMBRE : {} - APELLIDO : {} - DIRECCION : {} - FONO : {} - CORREO : {} - MONTO CRÉDITO : {} - DEUDA : {} - TIPO : {} ".format(
-                        dato[0], cliente, dato[2], dato[3], dato[4], dato[5], dato[6] , dato[9], dato[7], dato[8]))
+            limpiarPantalla()
+            for cliente, dato in datos:
+                print(" ID : {} - RUN : {} - NOMBRE : {} - APELLIDO : {} - DIRECCION : {} - FONO : {} - CORREO : {} - MONTO CRÉDITO : {} - DEUDA : {} - TIPO DE CLIENTE : {} ".format(
+                    dato[0], cliente, dato[2], dato[3], dato[4], dato[5], dato[6], dato[9], dato[7], dato[8]))
                 print("-------------------------------------------------------------------------------------------------------------------------------------------------")
-            
             input("\n\n PRESIONE ENTER PARA CONTINUAR")
-
     except ValueError:
         pass
 
 def modificardatos():
+    tipos = [[101, "Plata"], [102, "Oro"], [103, "Platino"]]
+    tipo_map = {str(codigo): tipo for codigo, tipo in tipos}
 
-    listanuevos=[]
-
-    # limpiarPantalla()
-
+    listanuevos = []
+    limpiarPantalla()
     print("===================================")
     print("      MODULO MODIFICAR CLIENTE     ")
     print("===================================")
-
     mostrartodo()
     mod = input("\n Ingrese valor del Run del Cliente que desea Modificar : ").strip()
-    
     if mod not in clientes:
         alerta("El dato o run ingresado es invalido")
         return
-    
     datos = clientes.get(mod)
-    
-    print(" ID         : {} ".format(datos[0]))
     listanuevos.append(datos[0])
-    print(" RUN        : {} ".format(datos[1]))
     listanuevos.append(datos[1])
-
-    opm=input("DESEA MODIFICAR EL NOMBRE : {} - [SI/NO] ".format(datos[2]))
-
-    if opm.lower() == "si":
-
-        nombrenuevo=input("INGRESE NOMBRE : ").lower()
-        listanuevos.append(nombrenuevo)
-
-    else:
-        listanuevos.append(datos[2])
-
-    opm = input("DESEA MODIFICAR EL APELLIDO : {} - [SI/NO] ".format(datos[3]))
-    
-    if opm.lower() == "si":
-
-        apellidonuevo= input("INGRESE APELLIDO : ").lower()
-        listanuevos.append(apellidonuevo)
-
-    else:
-        listanuevos.append(datos[3])
-
-    opm = input("DESEA MODIFICAR LA DIRECCION : {} - [SI/NO] ".format(datos[4]))
-    
-    if opm.lower() == "si":
-
-        direcnueva = input("INGRESE DIRECCION : ").title()
-        listanuevos.append(direcnueva)
-
-    else:
-        listanuevos.append(datos[4])
-
-    opm = input("DESEA MODIFICAR EL TELEFONO : {} - [SI/NO] ".format(datos[5]))
-    
-    if opm.lower() == "si":
-
-        fononuevo= input("INGRESE TELEFONO : ")
-        listanuevos.append(fononuevo)
-
-    else:
-        listanuevos.append(datos[5])
-
-    opm = input("DESEA MODIFICAR EL CORREO : {} - [SI/NO] ".format(datos[6]))
-    
-    if opm.lower() == "si":
-
-        correonuevo = input("INGRESE EL CORREO : ")
-        listanuevos.append(correonuevo)
-
-    else:
-        listanuevos.append(datos[6])
-
-    opm = input("DESEA MODIFICAR LA DEUDA : {} - [SI/NO] ".format(datos[9]))
-    
-    if opm.lower() == "si":
-
-        deudanuevo= input("INGRESE DEUDA : ")
-        listanuevos.append(deudanuevo)
-    
-    else:
-        listanuevos.append(datos[9])
-    
-    opm = input("DESEA MODIFICAR EL MONTO DE CREDITO : {} - [SI/NO] ".format(datos[8]))
-    
-    if opm.lower() == "si":
-
-        montonuevo= input("INGRESE MONTO DE CREDITO : ")
-        listanuevos.append(montonuevo)
-
-    else:
-        listanuevos.append(datos[8])
-
-    opm = input("DESEA MODIFICAR EL TIPO : {} - [SI/NO] ".format(datos[7]))
-    
-    if opm.lower() == "si":
-
-        tipos = [
-            [101,"Plata"],[102,"Oro"],[103,"Platino"]
-        ]
-
-        print("--------------------------------------------")
-        
-        for tipo in tipos:
-            print(
-                " CODIGO : {} - {}.".format(tipo[0], tipo[1]))
-        
-        print("--------------------------------------------")
-        
-        tiponuevo = input("INGRESE EL TIPO : ")
-        listanuevos.append(tiponuevo)
-
-    else:
-        listanuevos.append(datos[7])
-    
-    clientes[mod]=listanuevos
+    for i in range(2, 10):
+        nuevo_valor = input(f"DESEA MODIFICAR {['NOMBRE', 'APELLIDO', 'DIRECCION', 'FONO', 'CORREO', 'TIPO', 'MONTO CREDITO', 'DEUDA'][i-2]} : {datos[i]} - [SI/NO] ").strip().lower()
+        if nuevo_valor == "si":
+            valor = input(f"INGRESE NUEVO {['NOMBRE', 'APELLIDO', 'DIRECCION', 'FONO', 'CORREO', 'TIPO', 'MONTO CREDITO', 'DEUDA'][i-2]} : ").strip()
+            if valor:
+                if i == 7: 
+                    if valor not in tipo_map:
+                        alerta("Tipo de cliente no válido.")
+                        return
+                    else:
+                        valor = tipo_map.get(valor)
+                if i == 8:  # Si es el monto de crédito
+                    try:
+                        valor = int(valor)
+                    except ValueError:
+                        alerta("Monto de crédito debe ser un número entero.")
+                        return
+                listanuevos.append(valor)
+            else:
+                listanuevos.append(datos[i])
+        else:
+            listanuevos.append(datos[i])
+    clientes[mod] = listanuevos
+    carga_e()
+    time.sleep(2)
+    alerta("Datos modificados correctamente")
 
 def eliminardatos():
-
-    # limpiarPantalla()
-
+    limpiarPantalla()
     print("===================================")
     print("      MODULO ELIMINAR CLIENTE      ")
     print("===================================")
-
     mostrartodo()
-
     try:
-
-        elim = input("Ingrese valor del Run del Cliente que desea Eliminar : ").strip()     
-        
+        elim = input("Ingrese valor del Run del Cliente que desea Eliminar : ").strip()
         if elim in clientes:
-            
             del clientes[elim]
-            print("Cliente eliminado exitosamente.")
-        
+            carga_e()
+            time.sleep(2)
+            alerta("Cliente eliminado exitosamente.")
         else:
             alerta("El cliente no ha sido encontrado")
-
     except ValueError:
         pass
 
-def menuUsuarios():
+def crear_username(nombre, apellido):
+    b_username = (nombre + apellido[0]).lower()
+    suffix = 1
+    username = b_username
+    while username in usuarios:
+        username = f"{b_username}{suffix}"
+        suffix += 1
+    return username
 
-    # limpiarPantalla()
+def crear_correo(nombre, apellido):
+    b_correo = f"{nombre}.{apellido}"
+    suffix = 1
+    correo = f"{b_correo}@empresa.com"
+    while correo in usuarios:
+        correo = f"{b_correo}{suffix}@empresa.com"
+        suffix += 1
+    return correo
 
-    print("================================")
-    print("   M E N Ú  U S U A R I O S     ")
-    print("================================")
-    print("       1.-  INICIAR SESIÓN      ")
-    print("       2.-  REGISTRAR USUARIO   ")
-    print("       3.-  Salir               ")
-    print("================================")
+def registrardatosusuario():
+    limpiarPantalla()
+    global usuarios, idusuario
+    print("=================================")
+    print("     REGISTRAR DATOS USUARIO     ")
+    print("=================================")
+    nombre = input("INGRESE NOMBRE : ").strip().lower()
+    apellido = input("INGRESE APELLIDO : ").strip().lower()
+    telefono = input("INGRESE FONO : ").strip()
+    password = input("INGRESE PASSWORD : ").strip()
+    while True:
+        print("\n[1] - TRABAJADOR")
+        print("[2] - ADMINISTRADOR")
+        tipo = input("INGRESE TIPO DE USUARIO : ").strip()
+        if tipo in ["1", "2"]:
+            tipo = "trabajador" if tipo == "1" else "admin"
+            break
+        else:
+            print("Tipo de usuario no válido. Intente nuevamente.")
 
-def ingresoUsuarios():
+    if not (nombre or apellido or telefono or password ):
+        alerta("Todos los campos son obligatorios.")
+        return
+    
+    username = crear_username(nombre, apellido)
+    correo = crear_correo(nombre, apellido)
 
-    # limpiarPantalla()
-
-    print("=======================================")
-    print("        INGRESO DE USUARIO             ")
-    print("=======================================")
-
-    username = input( "INGRESE NOMBRE DE USUARIO:  ")
-    clave = input( "INGRESE PASSWORD         : ")
-    nombre = input(   "INGRESE NOMBRE           : ")
-    apellidos = input("INGRESE APELLIDOS        : ")
-    correo = input(   "INGRESE CORREO           : ")
-
-    print("=======================================")
-
-    global idusuario
     idusuario += 1
-    codigo = idusuario
-    usuario = [codigo,username,clave,nombre,apellidos,correo]
+    usuario = [idusuario, username, nombre, apellido, telefono, correo, password, tipo]
     usuarios[username] = usuario
+    carga_e()
+    time.sleep(2)
+    alerta(f"Usuario registrado exitosamente. \nNombre de Usuario: {username}. \ncorreo: {correo}")
+
+def eliminarusuario():
+    limpiarPantalla()
+    print("===================================")
+    print("      MODULO ELIMINAR USUARIO      ")
+    print("===================================")
+    for username, usuario in usuarios.items():
+        print(f"USERNAME : {username} - NOMBRE : {usuario[2]} - APELLIDO : {usuario[3]}")
+    try:
+        elim = input("\nIngrese el nombre de usuario que desea Eliminar : ").strip().lower()
+        if elim in usuarios:
+            del usuarios[elim]
+            carga_e()
+            time.sleep(2)
+            alerta("Usuario eliminado exitosamente.")
+        else:
+            alerta("El usuario no ha sido encontrado")
+    except ValueError:
+        pass
 
 def iniciar_sesion():
+    print("===================================")
+    print("          INICIO DE SESION         ")
+    print("===================================")
+    username = input("INGRESE USERNAME : ").strip().lower()
+    password = input("INGRESE PASSWORD : ").strip()
+    carga_e()
+    if username in usuarios and usuarios[username][6] == password:
+        carga_e()
+        time.sleep(2)
+        limpiarPantalla()
+        print(f"Bienvenido {usuarios[username][2]} {usuarios[username][3]} ({usuarios[username][7]})")
+        time.sleep(2)
+        return [usuarios[username][7], username]
+    else:
+        alerta("Nombre de Usuario o Contraseña Incorrectos.")
+        return None
 
-    # limpiarPantalla()
-
-    user = input("Ingrese nombre de usuario: ")
-
-    # limpiarPantalla()
-
-    clave = input("Ingrese password: ")
-
-    # limpiarPantalla()
-
-    if usuarios.get(user):
-
-        usuario = usuarios.get(user)
-
-        if usuario[2] == clave:
-
-            print(f"Bienvenido {usuario[3]} {usuario[4]} - {usuario[2]} - id: {usuario[0]}.")
-            input("Presiona ENTRAR para ingresar al Menú Principal.")
-            
-            return True
-    
-    return False
+def perfil(username):
+    usuario = usuarios.get(username)
+    if usuario:
+        print(f"\nID: {usuario[0]}")
+        print(f"Nombre: {usuario[2]} {usuario[3]}")
+        print(f"Telefono: {usuario[4]}")
+        print(f"Correo: {usuario[5]}")
+        print(f"Tipo: {usuario[7]}")
+        input("\n\n PRESIONE ENTER PARA CONTINUAR")
 
 def main():
-
+    carga_i(80)
     while True:
-
-        menuUsuarios()
-
-        try:
-            
-            opUsu = int(input("INGRESE OPCIÓN: "))
-
-            if opUsu == 1:
-
-                if iniciar_sesion():
-
-                    while True:  # Bucle para el Menú Principal
-                            
-                        menuprincipal()
-
-                        try:
-
-                            op = int(input("INGRESE OPCIÓN: "))
-                                
-                            if op == 1:
-                                
-                                ingresardatos()
-                                
-                            elif op == 2:
-                                    
-                                if len(clientes) > 0:
-
-                                    mostrar()
-                                    
-                                else:
-                                    onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
-                                        
-                                    if onc.lower() == "si":
-                                        
-                                        ingresardatos()
-                                        
-                                    else:
-                                        pass
-                                
-                            elif op == 3:
-
-                                if len(clientes) > 0:
-
-                                    modificardatos()
-
-                                else:
-                                    onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
-                                        
-                                    if onc.lower() == "si":
-                                        
-                                        ingresardatos()
-                                        
-                                    else:
-                                        pass
-
-                            elif op == 4:
-                                    
-                                if len(clientes) > 0:
-                                        
-                                    eliminardatos()
-
-                                else:
-                                    onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
-                                        
-                                    if onc.lower() == "si":
-                                        
-                                        ingresardatos()
-                                        
-                                    else:
-                                        pass
-
-                            elif op == 5:
-                                
-                                opSalir = input("¿DESEA SALIR [SI/NO]: ")
-                                
-                                if opSalir.lower() == "si":
-                                
-                                    break  # Salir del bucle del Menú Principal
-                            else:
-                                pass
-
-                        except ValueError:
-                            pass
-
-                    break  # Salir del bucle del Menú de Usuarios
-    
-            elif opUsu == 2:
-
-                ingresoUsuarios()
-
-            elif opUsu == 3:
-
-                opSalir = input("¿DESEA SALIR [SI/NO]: ")
-
-                if opSalir.lower() == "si":
+        limpiarPantalla()
+        sesion = iniciar_sesion()
+        if not sesion:
+            continue
+        while True:
+            menuprincipal(sesion)
+            opcion = input("\nINGRESE OPCIÓN : ").strip()
+            if sesion[0] == "admin":
+                if opcion == "1":
+                    registrardatosusuario()
+                elif opcion == "2":
+                    eliminarusuario()
+                elif opcion == "3":
                     break
-            else:
-                pass
+                else:
+                    print("Opción no válida. Intente nuevamente.")
+            elif sesion[0] == "trabajador":
+                if opcion == "1":
+                    perfil(sesion[1])
+                elif opcion == "2":
+                    ingresardatos()
+                elif opcion == "3":
+                    if len(clientes) > 0:
+                        mostrar()            
+                    else:
+                        onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")                
+                        if onc.lower() == "si":          
+                            ingresardatos()            
+                        else:
+                            pass
+                elif opcion == "4":
+                    if len(clientes) > 0:
+                        modificardatos()
+                    else:
+                        onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")
+                        if onc.lower() == "si":
+                            ingresardatos()
+                        else:
+                            pass
+                elif opcion == "5":
+                    if len(clientes) > 0:                  
+                        eliminardatos()
+                    else:
+                        onc = input("Todavia no hay clientes ingresados\n Desea Ingresar uno? [SI/NO]: ")               
+                        if onc.lower() == "si":                
+                            ingresardatos()                 
+                        else:
+                            pass
+                elif opcion == "6":
+                    break
+                else:
+                    print("Opción no válida. Intente nuevamente.")
 
-        except ValueError:
-            
-            pass
-
-if __name__=="__main__":
-
-    carga_thread = threading.Thread(target=carga_e)
-    carga_thread.start()
-
-    time.sleep(3)
-
+if __name__ == "__main__":
     main()
-    limpiarPantalla()
-    print("Programa finalizado")
