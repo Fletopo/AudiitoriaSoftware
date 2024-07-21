@@ -11,6 +11,7 @@ usuarios = {
 idcliente = 0
 idusuario = 1
 
+#funcion para mandar una alerta en pantalla para informar sobre algun cambio, error, ingreso, etc
 def alerta(mensaje):
     root = tk.Tk()
     root.withdraw()
@@ -19,6 +20,7 @@ def alerta(mensaje):
     messagebox.showinfo("Advertencia", mensaje)
     root.destroy()
 
+#funcion para cargado de programa muestra una pantalla de cargado de barra
 def carga_i(iteraciones, espera=0.1):
     for i in range(iteraciones):
         relleno = chr(9608) * (i + 1)  
@@ -27,6 +29,7 @@ def carga_i(iteraciones, espera=0.1):
         time.sleep(espera)
     print()  
 
+#funcion para pantalla de carga
 def carga_e():
     mensajes = ["Cargando.", "Cargando..", "Cargando..."]
     for _ in range(1):
@@ -35,12 +38,14 @@ def carga_e():
             print(msg)
             time.sleep(1)
 
+#funcion para limpiar la consola
 def limpiarPantalla():
     if os.name == "nt":
         os.system('cls')
     else:
         os.system("clear")
 
+#desplegua el menu principal una vez iniciado sesion
 def menuprincipal(tipo_usuario):
     limpiarPantalla()
     print("================================")
@@ -60,6 +65,7 @@ def menuprincipal(tipo_usuario):
         print("       6.- SALIR DE LA SESIÓN   ")
     print("================================")
 
+#funcion para ingresar un cliente
 def ingresardatos():
     limpiarPantalla()
     global clientes, idcliente
@@ -103,6 +109,7 @@ def ingresardatos():
     clientes[run] = cliente
     alerta("cliente ingresado exitosamente")
 
+#menu de las opciones de mostrar clientes
 def mostrar():
     while True:
         limpiarPantalla()
@@ -127,6 +134,7 @@ def mostrar():
         else:
             pass
 
+#funcion para mostrar todos los clientes registrados
 def mostrartodo():
     limpiarPantalla()
     print("=================================")
@@ -137,6 +145,7 @@ def mostrartodo():
             dato[0], cliente, dato[2], dato[3], dato[4], dato[5], dato[6], dato[8], dato[9], dato[7]))
         print("-------------------------------------------------------------------------------------------------------------------------------------------------")
 
+#funcion para mostrar un cliente registrado mediante el RUN
 def mostraruno():
     limpiarPantalla()
     print("=================================")
@@ -168,6 +177,7 @@ def mostraruno():
     except ValueError:
         pass
 
+#funcion para mostrar x cantidad de clientes registrados
 def mostrarparcial():
     limpiarPantalla()
     print("=======================================")
@@ -189,6 +199,7 @@ def mostrarparcial():
     except ValueError:
         pass
 
+#funcion para actualizar los datos de un cliente
 def modificardatos():
     tipos = [[101, "Plata"], [102, "Oro"], [103, "Platino"]]
     tipo_map = {str(codigo): tipo for codigo, tipo in tipos}
@@ -233,6 +244,7 @@ def modificardatos():
     time.sleep(2)
     alerta("Datos modificados correctamente")
 
+#funcion para eliminar un cliente registrado
 def eliminardatos():
     limpiarPantalla()
     print("===================================")
@@ -251,32 +263,41 @@ def eliminardatos():
     except ValueError:
         pass
 
+#funcion para crear el nombre de usuario mediante el uso del nombre y el apellido
 def crear_username(nombre, apellido):
     b_username = (nombre + apellido[0]).lower()
     suffix = 1
     username = b_username
+
+    #si ya hay un usuario registrado con el mismo nombre de usuario se le agregara un numero por delante 
+    #si tengo un usuario registrado llamado "test" al ingresar el usuario test nuevamente este se registrara como "test1"
     while username in usuarios:
         username = f"{b_username}{suffix}"
         suffix += 1
     return username
 
+#funcion para crear el correo para el usuario mediante el uso del nombre y apellido
 def crear_correo(nombre, apellido):
+    #se crear una variable con el nombre y apellido concatenados y separados por un punto
     b_correo = f"{nombre}.{apellido}"
     suffix = 1
+    #se crea el correo de la siguiente manera b_correo = "nombre.apellido@empresa.com"
     correo = f"{b_correo}@empresa.com"
     while correo in usuarios:
+        #al igual que con el nombre de usuario si ya hay un correo similar registrado se le incrementara el numero eje "nombre.apellido2@empresa.com"
         correo = f"{b_correo}{suffix}@empresa.com"
         suffix += 1
     return correo
 
+#funcion para registrar un usuario 
 def registrardatosusuario():
     limpiarPantalla()
     global usuarios, idusuario
     print("=================================")
     print("     REGISTRAR DATOS USUARIO     ")
     print("=================================")
-    nombre = input("INGRESE NOMBRE : ").strip().lower()
-    apellido = input("INGRESE APELLIDO : ").strip().lower()
+    nombre = input("INGRESE NOMBRE : ").lower()
+    apellido = input("INGRESE APELLIDO : ").lower()
     telefono = input("INGRESE FONO : ").strip()
     password = input("INGRESE PASSWORD : ").strip()
     while True:
@@ -303,6 +324,7 @@ def registrardatosusuario():
     time.sleep(2)
     alerta(f"Usuario registrado exitosamente. \nNombre de Usuario: {username}. \ncorreo: {correo}")
 
+#funcion para eliminar un usuario
 def eliminarusuario():
     limpiarPantalla()
     print("===================================")
@@ -322,6 +344,7 @@ def eliminarusuario():
     except ValueError:
         pass
 
+#funcion para iniciar sesion 
 def iniciar_sesion():
     print("===================================")
     print("          INICIO DE SESION         ")
@@ -340,6 +363,7 @@ def iniciar_sesion():
         alerta("Nombre de Usuario o Contraseña Incorrectos.")
         return None
 
+#funcion para mostrar el perfil del usuario que inicio sesion en el programa(solo para trabajadores)
 def perfil(username):
     usuario = usuarios.get(username)
     if usuario:
